@@ -63,6 +63,7 @@ void waitForStart() {
   }
 
   outputArray(leds, N_LEDS, LOW);
+  Serial.println("Starting game!");
   playGame();
 }
 
@@ -105,10 +106,12 @@ void playGame() {
     offTime -= timeDecrease;
     generateRandomSequence(gameSequenceHead);
   }
-  
+
+  freeList(gameSequenceHead);
   displayGameOver(score);
 }
 
+//Plays the animation for when the answer is wrong.
 void displayWrongAnswer(int lives) {
   Serial.println("Wrong answer!");
   outputArray(leds, N_LEDS, HIGH);
@@ -119,6 +122,7 @@ void displayWrongAnswer(int lives) {
   Serial.println(" remaining.");
 }
 
+//Plays the animation for when the answer is right.
 void displayRightAnswer(int score) {
   outputSequence(leds, N_LEDS, 2, 50);
   Serial.print("Correct! You have now ");
@@ -126,6 +130,7 @@ void displayRightAnswer(int score) {
   Serial.println(" points.");
 }
 
+//Plays the animation for when the game is over.
 void displayGameOver(int score) {
   delay(500);
   outputArray(lifeLeds, N_LEDS, HIGH);
