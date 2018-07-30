@@ -7,8 +7,6 @@ int leds[N_LEDS] = {5, 4, 3, 2};
 int buttons[N_LEDS] = {6, 7, 8, 9};
 int life_leds[N_LIFES] = {10, 11, 12};
 
-List gameSequence;
-
 void setup() {
   //Initialize pin modes
   for (int i = 0; i < N_LEDS; i++) {
@@ -42,9 +40,10 @@ void waitForStart() {
   unsigned long currMillis;
   unsigned long previousMillis = millis();
   
-  Serial.println("Press any button");
+  
   outputArray(leds, N_LEDS, HIGH);
-
+  outputArray(life_leds, N_LIFES, HIGH);
+  Serial.println("Press any button");
   //Flash leds and check for input
   while (!start) {
     currMillis = millis();
@@ -59,19 +58,22 @@ void waitForStart() {
         outputArray(leds, N_LEDS, HIGH);
         previousMillis = currMillis;
       }
-    }
-    
+    } 
     start = checkInputArray(buttons, N_LEDS);
   }
 
   outputArray(leds, N_LEDS, LOW);
-  startGame();
+  playGame();
 }
 
-void startGame() {
-  int errors = 0;
-  int sequence[] = {2,4,3,5};
-  while (1) outputSequence(sequence, 4, 1, 50);
+void playGame() {
+  int lifes = N_LIFES;
+  int turn = 0;
+  List gameSequence = newList();
+
+  while (lifes > 0) {
+    
+  }
 }
 
 //Returns whether any input was set to HIGH in the inputs array.
