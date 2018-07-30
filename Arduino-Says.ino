@@ -27,15 +27,13 @@ void setup() {
 void gameSetup() {
    outputArray(leds, N_LEDS, LOW);
    outputArray(lifeLeds, N_LIVES, LOW);
-   outputSequence(leds, N_LEDS, 2, 50);
+   outputArraySequence(leds, N_LEDS, 2, 50);
    delay(150);
    waitForStart();
 }
 
 //Flashes leds and waits for any button's input
 void waitForStart() { 
-  int start = -1;
-  
   const int onTime = 1000;
   const int offTime = 400;
   unsigned long currMillis;
@@ -44,8 +42,8 @@ void waitForStart() {
   outputArray(leds, N_LEDS, HIGH);
   outputArray(lifeLeds, N_LIVES, HIGH);
   Serial.println("Press any button");
-  //Flash leds and check for input
-  while (start == -1) {
+  //Flash leds and check for any button to be pressed.
+  while (checkInputArray(buttons, N_LEDS) == -1) {
     currMillis = millis();
     // if leds are on (only need to check 1).
     if (digitalRead(leds[0])) {
@@ -59,7 +57,6 @@ void waitForStart() {
         previousMillis = currMillis;
       }
     } 
-    start = checkInputArray(buttons, N_LEDS);
   }
 
   outputArray(leds, N_LEDS, LOW);
@@ -71,32 +68,32 @@ void waitForStart() {
 void playGame() {
   int score = 0;
   int lives = N_LIVES;
-  int choice = -1;
-  int onTime = 300, offTime = 250;
+  int choice;
+  int onTime = 500, offTime = 300;
   int timeDecrease = 25;
   Node x;
 
-  Node gameSequenceHead = newList();
+  List gameSequence = newList();
 
-  generateRandomSequence(gameSequenceHead);
+  generateRandomSequence(gameSequence);
   while (lives > 0) {
-    playSequence(gameSequenceHead, onTime, offTime);
-    x = gameSequenceHead;
+    playSequence(gameSequence, onTime, offTime);
+    x = getListHead(gameSequence);
     while (x != NULL) {
       //waits for input
+      choice = -1;
       while (choice == -1) {
-        checkInputArray(buttons, N_LEDS);
+        choice = checkInputArray(buttons, N_LEDS);
       }
       choice = pinToIndex(buttons, N_LEDS, choice);
       playLED(leds[choice], onTime);
       if (choice == getNodeValue(x)) {
         x = getNextNode(x);
       } else {
-        x = gameSequenceHead;
+        x = getListHead(gameSequence);
         lives--;
         displayWrongAnswer(lives);
-        digitalWrite(lifeLeds[lives], LOW);
-        playSequence(gameSequenceHead, onTime, offTime);
+        playSequence(gameSequence, onTime, offTime);
         continue;
       }
     }
@@ -104,70 +101,24 @@ void playGame() {
     displayRightAnswer(score);
     onTime -= timeDecrease;
     offTime -= timeDecrease;
-    generateRandomSequence(gameSequenceHead);
+    generateRandomSequence(gameSequence);
   }
 
-  freeList(gameSequenceHead);
+  freeList(gameSequence);
   displayGameOver(score);
 }
 
-//Plays the animation for when the answer is wrong.
-void displayWrongAnswer(int lives) {
-  Serial.println("Wrong answer!");
-  outputArray(leds, N_LEDS, HIGH);
-  delay(300);
-  outputArray(leds, N_LEDS, LOW);
-  Serial.print("You have ");
-  Serial.print(lives);
-  Serial.println(" remaining.");
-}
-
-//Plays the animation for when the answer is right.
-void displayRightAnswer(int score) {
-  outputSequence(leds, N_LEDS, 2, 50);
-  Serial.print("Correct! You have now ");
-  Serial.print(score);
-  Serial.println(" points.");
-}
-
-//Plays the animation for when the game is over.
-void displayGameOver(int score) {
-  delay(500);
-  outputArray(lifeLeds, N_LEDS, HIGH);
-  outputArray(leds, N_LEDS, HIGH);
-  Serial.print("Game over, your score was: ");
-  Serial.print(score);
-  Serial.println("Restarting...");
-  gameSetup();
-}
-
-//Returns the index of the pin pinNumber in the inputs array.
-int pinToIndex(int inputs[], int len, int pinNumber) {
-  for (int i = 0; i < len; i++) {
-    if (inputs[i] == pinNumber) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-//Generates a random sequence to be played. For each list node it's chosen a new value
-//between 0 and N_LEDS. At the end a new node is appended.
-void generateRandomSequence(Node seqHead) {
-  int randomVal;
-
-  for (Node x = seqHead; x != NULL; x = getNextNode(x)) {
-    randomVal = rand() % N_LEDS;
-    setNodeValue(x, randomVal);
-  }
-  randomVal = rand() % N_LEDS;
+//Adds a new random value to the sequence. It's chosen a new value
+//between 0 and N_LEDS. The new value is added to sequence.
+void generateRandomSequence(List sequence) {
+  int randomVal = rand() % N_LEDS;
   Node n = newNode(randomVal);
-  addNodeToList(seqHead, n);
+  addNodeToList(sequence, n);
 }
 
 //Plays a sequence from a list, LEDs are on for onTime and off for offTime.
-void playSequence(Node seqHead, int onTime, int offTime) {
-  for (Node x = seqHead; x != NULL; x = getNextNode(x)) {
+void playSequence(List sequence, int onTime, int offTime) {
+  for (Node x = getListHead(sequence); x != NULL; x = getNextNode(x)) {
     playLED(getNodeValue(x), onTime);
     delay(offTime);
   }
@@ -202,6 +153,47 @@ int checkInputArray(int inputs[], int len) {
   return -1;
 }
 
+//Returns the index of the pin pinNumber in the inputs array.
+int pinToIndex(int inputs[], int len, int pinNumber) {
+  for (int i = 0; i < len; i++) {
+    if (inputs[i] == pinNumber) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+//Plays the animation for when the answer is wrong. Turns of one LED.
+void displayWrongAnswer(int lives) {
+  Serial.println("Wrong answer!");
+  outputArray(leds, N_LEDS, HIGH);
+  delay(300);
+  outputArray(leds, N_LEDS, LOW);
+  Serial.print("You have ");
+  Serial.print(lives);
+  Serial.println(" remaining.");
+  digitalWrite(lifeLeds[lives], LOW);
+}
+
+//Plays the animation for when the answer is right.
+void displayRightAnswer(int score) {
+  outputArraySequence(leds, N_LEDS, 2, 50);
+  Serial.print("Correct! You have now ");
+  Serial.print(score);
+  Serial.println(" points.");
+}
+
+//Plays the animation for when the game is over.
+void displayGameOver(int score) {
+  delay(500);
+  outputArray(lifeLeds, N_LEDS, HIGH);
+  outputArray(leds, N_LEDS, HIGH);
+  Serial.print("Game over, your score was: ");
+  Serial.print(score);
+  Serial.println("Restarting...");
+  gameSetup();
+}
+
 //Outputs value to all pins in the outputs array.
 void outputArray(int outputs[], int len, int value) {
   for (int i = 0; i < len; i++) {
@@ -211,7 +203,7 @@ void outputArray(int outputs[], int len, int value) {
 
 //Writes HIGH for each pin in sequence and then LOW (following the order of the array).
 //Each steps lasts stepDelay ms.
-void outputSequence(int sequence[], int len, float loops, int stepDelay) {
+void outputArraySequence(int sequence[], int len, float loops, int stepDelay) {
     for (int i = 0; i < len*loops; i++) {
         digitalWrite(sequence[i%len], HIGH);
         delay(stepDelay);
