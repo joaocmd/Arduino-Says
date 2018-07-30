@@ -8,7 +8,7 @@ int buttons[N_LEDS] = {6, 7, 8, 9};
 int lifeLeds[N_LIVES] = {10, 11, 12};
 
 void setup() {
-  //Initialize pin modes
+  //Initialize pin modes and set LEDs to off.
   for (int i = 0; i < N_LEDS; i++) {
     pinMode(leds[i], OUTPUT);
     digitalWrite(leds[i], LOW);
@@ -41,7 +41,7 @@ void waitForStart() {
 
   outputArray(leds, N_LEDS, HIGH);
   outputArray(lifeLeds, N_LIVES, HIGH);
-  Serial.println("Press any button");
+  Serial.println("Press any button.");
   //Flash leds and check for any button to be pressed.
   while (checkInputArray(buttons, N_LEDS) == -1) {
     currMillis = millis();
@@ -71,15 +71,15 @@ void playGame() {
   int choice;
   int onTime = 500, offTime = 300;
   int timeDecrease = 25;
+  bool rightAnswer = true;
+  
   Node x;
-
   List gameSequence = newList();
-
   generateRandomSequence(gameSequence);
   while (lives > 0) {
     playSequence(gameSequence, onTime, offTime);
     x = getListHead(gameSequence);
-    while (x != NULL) {
+    while (x != NULL && rightAnswer) {
       //waits for input
       choice = -1;
       while (choice == -1) {
@@ -90,18 +90,19 @@ void playGame() {
       if (choice == getNodeValue(x)) {
         x = getNextNode(x);
       } else {
-        x = getListHead(gameSequence);
-        lives--;
-        displayWrongAnswer(lives);
-        playSequence(gameSequence, onTime, offTime);
-        continue;
+        rightAnswer = false;
       }
     }
-    score++;
-    displayRightAnswer(score);
-    onTime -= timeDecrease;
-    offTime -= timeDecrease;
-    generateRandomSequence(gameSequence);
+    if (rightAnswer) {
+      score++;
+      displayRightAnswer(score);
+      onTime -= timeDecrease;
+      offTime -= timeDecrease;
+      generateRandomSequence(gameSequence);
+    } else {
+        lives--;
+        displayWrongAnswer(lives);
+    }
   }
 
   freeList(gameSequence);
