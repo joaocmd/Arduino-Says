@@ -21,6 +21,7 @@ extern "C" {
 #endif
 /* Operations on lists */
 List newList();
+int getListLength(List list);
 Node getListHead(List list);
 void addNodeToList(List list, Node node);
 

@@ -9,6 +9,10 @@ List newList() {
   return list;
 }
 
+List getListLength(List list) {
+  return list->len;
+}
+
 Node getListHead(List list) {
   return list->head;
 }
@@ -21,6 +25,7 @@ void addNodeToList(List list, Node node) {
     list->tail->next = node;
   }
   list->tail = node;
+  list->len++;
 }
 
 /* Operations on list nodes */

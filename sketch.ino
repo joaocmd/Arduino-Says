@@ -72,8 +72,19 @@ void playGame() {
   List gameSequence = newList();
 
   while (lifes > 0) {
-    
+    generateRandomSequence(gameSequence);
   }
+}
+
+void generateRandomSequence(List sequence) {
+  int randomVal;
+  
+  for (x = getListHead(sequence); x != NULL; x = getNextNode(x)) {
+    randomVal = rand() % N_LEDS;
+    setNodeValue(x, randomVal);
+  }
+  randomVal = rand() % N_LEDS;
+  Node n = newNode(randomVal);
 }
 
 //Returns whether any input was set to HIGH in the inputs array.
