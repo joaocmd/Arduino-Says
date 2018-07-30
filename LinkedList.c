@@ -1,19 +1,23 @@
 #include "LinkedList.h"
 
 /* Operations on lists */
-List newList() {
-  List list = (List) malloc(sizeof(List));
-  list->head = NULL;
-  return list;
+Node newList() {
+  return NULL;
 }
 
-Node getListHead(List list) {
-  return list->head;
+void freeList(Node head) {
+  Node x = head;
+  Node next;
+  while (x != NULL) {
+    next = x->next;
+    free(x);
+    x = next;
+  }
 }
 
-void addNodeToList(List list, Node node) {
-  node->next = list->head;
-  list->head = node;
+void addNodeToList(Node head, Node node) {
+  node->next = head;
+  head = node;
 }
 
 /* Operations on list nodes */

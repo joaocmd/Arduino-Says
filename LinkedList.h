@@ -4,24 +4,19 @@
 #include <stdlib.h>
 
 typedef struct node *Node;
-typedef struct list *List;
 
 struct node {
   int value;
   Node next;
 };
 
-struct list{
-  Node head, tail;
-};
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 /* Operations on lists */
-List newList();
-Node getListHead(List list);
-void addNodeToList(List list, Node node);
+Node newList();
+void freeList(Node head);
+void addNodeToList(Node head, Node node);
 
 /* Operations on list nodes */
 Node newNode(int value);
