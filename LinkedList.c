@@ -4,13 +4,7 @@
 List newList() {
   List list = (List) malloc(sizeof(List));
   list->head = NULL;
-  list->tail = NULL;
-  list->len = 0;
   return list;
-}
-
-List getListLength(List list) {
-  return list->len;
 }
 
 Node getListHead(List list) {
@@ -18,14 +12,8 @@ Node getListHead(List list) {
 }
 
 void addNodeToList(List list, Node node) {
-  if (list->head == NULL) {
-    list->head = node;
-  }
-  if (list->tail != NULL) {
-    list->tail->next = node;
-  }
-  list->tail = node;
-  list->len++;
+  node->next = list->head;
+  list->head = node;
 }
 
 /* Operations on list nodes */
