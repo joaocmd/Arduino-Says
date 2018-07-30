@@ -71,16 +71,17 @@ void playGame() {
   int choice;
   int onTime = 500, offTime = 300;
   int timeDecrease = 25;
-  bool rightAnswer = true;
+  bool rightAnswer;
   
   Node x;
   List gameSequence = newList();
   generateRandomSequence(gameSequence);
   while (lives > 0) {
+    rightAnswer = true;
     playSequence(gameSequence, onTime, offTime);
     x = getListHead(gameSequence);
     while (x != NULL && rightAnswer) {
-      //waits for input
+      //Waits for input
       choice = -1;
       while (choice == -1) {
         choice = checkInputArray(buttons, N_LEDS);
@@ -93,6 +94,7 @@ void playGame() {
         rightAnswer = false;
       }
     }
+
     if (rightAnswer) {
       score++;
       displayRightAnswer(score);
@@ -143,27 +145,6 @@ void playLED(int index, int onTime) {
   digitalWrite(leds[index], LOW);
 }
 
-//Returns the pin number of an input that was set to HIGH in the inputs array.
-//If all were set to LOW, returns -1.
-int checkInputArray(int inputs[], int len) {
-  for (int i = 0; i < len; i++) {
-    if (digitalRead(inputs[i]) == HIGH) {
-      return inputs[i];
-    }
-  }
-  return -1;
-}
-
-//Returns the index of the pin pinNumber in the inputs array.
-int pinToIndex(int inputs[], int len, int pinNumber) {
-  for (int i = 0; i < len; i++) {
-    if (inputs[i] == pinNumber) {
-      return i;
-    }
-  }
-  return -1;
-}
-
 //Plays the animation for when the answer is wrong. Turns of one LED.
 void displayWrongAnswer(int lives) {
   Serial.println("Wrong answer!");
@@ -193,24 +174,6 @@ void displayGameOver(int score) {
   Serial.print(score);
   Serial.println("Restarting...");
   gameSetup();
-}
-
-//Outputs value to all pins in the outputs array.
-void outputArray(int outputs[], int len, int value) {
-  for (int i = 0; i < len; i++) {
-    digitalWrite(outputs[i], value);
-  }
-}
-
-//Writes HIGH for each pin in sequence and then LOW (following the order of the array).
-//Each steps lasts stepDelay ms.
-void outputArraySequence(int sequence[], int len, float loops, int stepDelay) {
-    for (int i = 0; i < len*loops; i++) {
-        digitalWrite(sequence[i%len], HIGH);
-        delay(stepDelay);
-        digitalWrite(sequence[i%len], LOW);
-        delay(stepDelay);    
-    }
 }
 
 //Nothing here
