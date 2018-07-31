@@ -7,12 +7,12 @@ typedef struct node *Node;
 typedef struct list *List;
 
 struct node {
-  int value;
-  Node next;
+    int value;
+    Node next;
 };
 
 struct list {
-  Node head, tail;
+    Node head, tail;
 };
 
 #ifdef __cplusplus

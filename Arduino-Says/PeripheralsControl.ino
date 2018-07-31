@@ -3,29 +3,29 @@
 //Returns the pin number of an input that was set to HIGH in the inputs array.
 //If all were set to LOW, returns -1.
 int checkInputArray(int inputs[], int len) {
-  for (int i = 0; i < len; i++) {
-    if (digitalRead(inputs[i]) == HIGH) {
-      return inputs[i];
+    for (int i = 0; i < len; i++) {
+        if (digitalRead(inputs[i]) == HIGH) {
+            return inputs[i];
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
 //Returns the index of the pin pinNumber in the inputs array.
 int pinToIndex(int inputs[], int len, int pinNumber) {
-  for (int i = 0; i < len; i++) {
-    if (inputs[i] == pinNumber) {
-      return i;
+    for (int i = 0; i < len; i++) {
+        if (inputs[i] == pinNumber) {
+            return i;
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
 //Outputs value to all pins in the outputs array.
 void outputArray(int outputs[], int len, int value) {
-  for (int i = 0; i < len; i++) {
-    digitalWrite(outputs[i], value);
-  }
+    for (int i = 0; i < len; i++) {
+        digitalWrite(outputs[i], value);
+    }
 }
 
 //Writes HIGH for each pin in sequence and then LOW (following the order of the array).
