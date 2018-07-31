@@ -1,8 +1,10 @@
 #include "LinkedList.h"
 
+#define DEFAULT_BAUD 9600
 #define N_LEDS 4
 #define N_LIVES 3
-#define INPUT_DELAY 200
+#define INPUT_DELAY 150
+#define NO_INPUT -1
 
 int leds[N_LEDS] = {5, 4, 3, 2};
 int buttons[N_LEDS] = {6, 7, 8, 9};
@@ -23,7 +25,7 @@ void setup() {
   }
   pinMode(buzzer, OUTPUT);
   noTone(buzzer);
-  Serial.begin(9600);
+  Serial.begin(DEFAULT_BAUD);
   randomSeed(analogRead(0));
   gameSetup();
 }
@@ -49,7 +51,7 @@ void waitForStart() {
   tone(buzzer, buzzerScale[random(N_LEDS)]);
   Serial.println("Press any button.");
   //Flash leds and check for any button to be pressed.
-  while (checkInputArray(buttons, N_LEDS) == -1) {
+  while (checkInputArray(buttons, N_LEDS) == NO_INPUT) {
     currMillis = millis();
     // if leds are on (only need to check 1).
     if (digitalRead(leds[0])) {
@@ -78,8 +80,9 @@ void waitForStart() {
 void playGame() {
   int score = 0;
   int lives = N_LIVES;
-  const int startStepDelay = 500;
-  const int minDelay = 100;
+  const int minDelay = 80;
+  const int diffSteepness = 450;
+  int startStepDelay = minDelay + diffSteepness;
   int stepDelay = startStepDelay;
   int choice;
   bool rightAnswer;
@@ -107,7 +110,7 @@ void playGame() {
     if (rightAnswer) {
       score++;
       displayRightAnswer(score);
-      stepDelay = startStepDelay/(score+1) + minDelay;
+      stepDelay = diffSteepness/(score+1) + minDelay;
       generateRandomSequence(gameSequence);
     } else {
         lives--;
@@ -122,8 +125,8 @@ void playGame() {
 
 //Waits for player input and returns the pin of the clicked button.
 int waitForPlay() {
-  int choice = -1;
-  while (choice == -1) {
+  int choice = NO_INPUT;
+  while (choice == NO_INPUT) {
     choice = checkInputArray(buttons, N_LEDS);
   }
   
