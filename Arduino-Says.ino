@@ -5,6 +5,8 @@
 
 int leds[N_LEDS] = {5, 4, 3, 2};
 int buttons[N_LEDS] = {6, 7, 8, 9};
+int buzzer = 13;
+int buzzerScale[N_LEDS] = {329, 440, 587, 784};
 int lifeLeds[N_LIVES] = {10, 11, 12};
 
 void setup() {
@@ -18,8 +20,10 @@ void setup() {
     pinMode(lifeLeds[i], OUTPUT);
     digitalWrite(lifeLeds[i], LOW);
   }
-
+  pinMode(buzzer, OUTPUT);
+  noTone(buzzer);
   Serial.begin(9600);
+  randomSeed(analogRead(0));
   gameSetup();
 }
 
@@ -27,7 +31,7 @@ void setup() {
 void gameSetup() {
    outputArray(leds, N_LEDS, LOW);
    outputArray(lifeLeds, N_LIVES, LOW);
-   outputArraySequence(leds, N_LEDS, 2, 50);
+   outputArraySequenceAndBuzzer(leds, buzzer, buzzerScale, N_LEDS, 2, 50);
    delay(150);
    waitForStart();
 }
@@ -41,6 +45,7 @@ void waitForStart() {
 
   outputArray(leds, N_LEDS, HIGH);
   outputArray(lifeLeds, N_LIVES, HIGH);
+  tone(buzzer, buzzerScale[random(N_LEDS)]);
   Serial.println("Press any button.");
   //Flash leds and check for any button to be pressed.
   while (checkInputArray(buttons, N_LEDS) == -1) {
@@ -49,18 +54,22 @@ void waitForStart() {
     if (digitalRead(leds[0])) {
       if (currMillis - previousMillis >= onTime) {
          outputArray(leds, N_LEDS, LOW);
+         noTone(buzzer);
          previousMillis = currMillis;
       }
     } else {
       if (currMillis - previousMillis >= offTime) {
         outputArray(leds, N_LEDS, HIGH);
+        tone(buzzer, buzzerScale[random(N_LEDS)]);
         previousMillis = currMillis;
       }
     } 
   }
 
   outputArray(leds, N_LEDS, LOW);
+  noTone(buzzer);
   Serial.println("Starting game!");
+  delay(500);
   playGame();
 }
 
@@ -69,8 +78,8 @@ void playGame() {
   int score = 0;
   int lives = N_LIVES;
   int choice;
-  int onTime = 500, offTime = 300;
-  int timeDecrease = 25;
+  int onTime = 500, offTime = 500;
+  int timeDecrease = 50;
   bool rightAnswer;
   
   Node x;
@@ -80,19 +89,17 @@ void playGame() {
     rightAnswer = true;
     playSequence(gameSequence, onTime, offTime);
     x = getListHead(gameSequence);
+    Serial.println("Repeat the sequence!");
     while (x != NULL && rightAnswer) {
-      //Waits for input
-      choice = -1;
-      while (choice == -1) {
-        choice = checkInputArray(buttons, N_LEDS);
-      }
-      choice = pinToIndex(buttons, N_LEDS, choice);
-      playLED(leds[choice], onTime);
+      choice = pinToIndex(buttons, N_LEDS, waitForPlay());
       if (choice == getNodeValue(x)) {
+        playLED(choice, onTime);
         x = getNextNode(x);
       } else {
         rightAnswer = false;
       }
+      //To prevent repeated input
+      delay(200);
     }
 
     if (rightAnswer) {
@@ -111,10 +118,21 @@ void playGame() {
   displayGameOver(score);
 }
 
+
+//Waits for player input and returns the pin of the clicked button.
+int waitForPlay() {
+  int choice = -1;
+  while (choice == -1) {
+    choice = checkInputArray(buttons, N_LEDS);
+  }
+  
+  return choice;
+}
+
 //Adds a new random value to the sequence. It's chosen a new value
 //between 0 and N_LEDS. The new value is added to sequence.
 void generateRandomSequence(List sequence) {
-  int randomVal = rand() % N_LEDS;
+  int randomVal = random(N_LEDS);
   Node n = newNode(randomVal);
   addNodeToList(sequence, n);
 }
@@ -130,39 +148,35 @@ void playSequence(List sequence, int onTime, int offTime) {
 //Used during gameplay to light a single LED and the correspondant tone.
 void playLED(int index, int onTime) {
   digitalWrite(leds[index], HIGH);
-  //Play tone on Piezo Buzzer
-  switch (index) {
-    case 0:
-      break;
-    case 1:
-      break;
-    case 2:
-      break;
-    case 3:
-      break;
-  }
+  tone(buzzer, buzzerScale[index]);
   delay(onTime);
   digitalWrite(leds[index], LOW);
+  noTone(buzzer);
 }
 
 //Plays the animation for when the answer is wrong. Turns of one LED.
 void displayWrongAnswer(int lives) {
   Serial.println("Wrong answer!");
   outputArray(leds, N_LEDS, HIGH);
+  tone(buzzer, 130);
   delay(300);
   outputArray(leds, N_LEDS, LOW);
+  noTone(buzzer);
+  delay(500);
   Serial.print("You have ");
   Serial.print(lives);
-  Serial.println(" remaining.");
+  Serial.println(" tries remaining.");
   digitalWrite(lifeLeds[lives], LOW);
 }
 
 //Plays the animation for when the answer is right.
 void displayRightAnswer(int score) {
-  outputArraySequence(leds, N_LEDS, 2, 50);
+  delay(300);
+  outputArraySequenceAndBuzzer(leds, buzzer, buzzerScale, N_LEDS, 2, 50);
   Serial.print("Correct! You have now ");
   Serial.print(score);
   Serial.println(" points.");
+  delay(300);
 }
 
 //Plays the animation for when the game is over.
@@ -171,7 +185,7 @@ void displayGameOver(int score) {
   outputArray(lifeLeds, N_LEDS, HIGH);
   outputArray(leds, N_LEDS, HIGH);
   Serial.print("Game over, your score was: ");
-  Serial.print(score);
+  Serial.println(score);
   Serial.println("Restarting...");
   gameSetup();
 }

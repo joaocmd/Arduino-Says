@@ -39,3 +39,16 @@ void outputArraySequence(int sequence[], int len, float loops, int stepDelay) {
     }
 }
 
+//Writes HIGH for each pin in sequence and then LOW (following the order of the array).
+//Each steps lasts stepDelay ms. Also tones the buzzer with the according buzzerSeq note.
+//It's a modification of outputArraySequence.
+void outputArraySequenceAndBuzzer(int sequence[], int buzzer, int buzzerSeq[], int len, float loops, int stepDelay) {
+    for (int i = 0; i < len*loops; i++) {
+        digitalWrite(sequence[i%len], HIGH);
+        tone(buzzer, buzzerSeq[i%len]);
+        delay(stepDelay);
+        digitalWrite(sequence[i%len], LOW);
+        noTone(buzzer);
+        delay(stepDelay);
+    }
+}

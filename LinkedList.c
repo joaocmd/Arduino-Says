@@ -5,7 +5,7 @@ List newList() {
   List x = (List) malloc(sizeof(struct list));
   x->head = NULL;
   x->tail = NULL;
-  return NULL;
+  return x;
 }
 
 void freeList(List list) {
