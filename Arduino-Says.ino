@@ -3,7 +3,8 @@
 #define DEFAULT_BAUD 9600
 #define N_LEDS 4
 #define N_LIVES 3
-#define INPUT_DELAY 150
+#define INPUT_DELAY 100
+#define SCORE_DELAY 200
 #define NO_INPUT -1
 
 int leds[N_LEDS] = {5, 4, 3, 2};
@@ -190,7 +191,16 @@ void displayGameOver(int score) {
   outputArray(leds, N_LEDS, HIGH);
   Serial.print("Game over, your score was: ");
   Serial.println(score);
+  for (int points = 1; points <= score; points++) {
+    outputArray(leds, N_LEDS, HIGH);
+    tone(buzzer, buzzerScale[0]);
+    delay(SCORE_DELAY);
+    outputArray(leds, N_LEDS, LOW);
+    noTone(buzzer);
+    delay(SCORE_DELAY);
+  }
   Serial.println("Restarting...");
+
   gameSetup();
 }
 
