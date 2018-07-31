@@ -2,6 +2,7 @@
 
 #define N_LEDS 4
 #define N_LIVES 3
+#define INPUT_DELAY 200
 
 int leds[N_LEDS] = {5, 4, 3, 2};
 int buttons[N_LEDS] = {6, 7, 8, 9};
@@ -77,9 +78,10 @@ void waitForStart() {
 void playGame() {
   int score = 0;
   int lives = N_LIVES;
+  const int startStepDelay = 500;
+  const int minDelay = 100;
+  int stepDelay = startStepDelay;
   int choice;
-  int onTime = 500, offTime = 500;
-  int timeDecrease = 50;
   bool rightAnswer;
   
   Node x;
@@ -87,26 +89,25 @@ void playGame() {
   generateRandomSequence(gameSequence);
   while (lives > 0) {
     rightAnswer = true;
-    playSequence(gameSequence, onTime, offTime);
+    playSequence(gameSequence, stepDelay);
     x = getListHead(gameSequence);
     Serial.println("Repeat the sequence!");
     while (x != NULL && rightAnswer) {
       choice = pinToIndex(buttons, N_LEDS, waitForPlay());
       if (choice == getNodeValue(x)) {
-        playLED(choice, onTime);
+        playLED(choice, stepDelay);
         x = getNextNode(x);
       } else {
         rightAnswer = false;
       }
-      //To prevent repeated input
-      delay(200);
+      //Prevents repeated input
+      delay(INPUT_DELAY);
     }
 
     if (rightAnswer) {
       score++;
       displayRightAnswer(score);
-      onTime -= timeDecrease;
-      offTime -= timeDecrease;
+      stepDelay = startStepDelay/(score+1) + minDelay;
       generateRandomSequence(gameSequence);
     } else {
         lives--;
@@ -138,10 +139,10 @@ void generateRandomSequence(List sequence) {
 }
 
 //Plays a sequence from a list, LEDs are on for onTime and off for offTime.
-void playSequence(List sequence, int onTime, int offTime) {
+void playSequence(List sequence, int stepDelay) {
   for (Node x = getListHead(sequence); x != NULL; x = getNextNode(x)) {
-    playLED(getNodeValue(x), onTime);
-    delay(offTime);
+    playLED(getNodeValue(x), stepDelay);
+    delay(stepDelay);
   }
 }
 
