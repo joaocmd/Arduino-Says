@@ -1,5 +1,6 @@
 # Arduino-Says
 Simon Says eletronic game running on an Arduino board.
+[Click here for youtube video.](https://www.youtube.com/watch?v=VnbKoB3qI0E)
 
 ## About The Project
 This was my first experience playing around with an Arduino board. I decided this would be a fun game to try making since my resources were fairly limited in terms of electronic components.
