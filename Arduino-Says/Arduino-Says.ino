@@ -3,6 +3,7 @@
 #define DEFAULT_BAUD 9600
 #define N_LEDS 4
 #define N_LIVES 3
+#define FAIL_NOTE 130
 #define INPUT_DELAY 100
 #define SCORE_DELAY 200
 #define NO_INPUT -1
@@ -161,7 +162,7 @@ void playLED(int index, int onTime) {
 void displayWrongAnswer(int lives) {
     Serial.println("Wrong answer!");
     outputArray(leds, N_LEDS, HIGH);
-    tone(buzzer, 130);
+    tone(buzzer, FAIL_NOTE);
     delay(300);
     outputArray(leds, N_LEDS, LOW);
     noTone(buzzer);
