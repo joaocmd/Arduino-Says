@@ -1,5 +1,5 @@
 # Arduino-Says
-Simon Says eletronic game running on an Arduino board.
+Simon Says eletronic game running on an Arduino Uno board.
 [Click here for youtube video.](https://www.youtube.com/watch?v=VnbKoB3qI0E)
 
 ## About The Project
