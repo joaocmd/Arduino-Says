@@ -84,8 +84,7 @@ void playGame() {
     int lives = N_LIVES;
     const int minDelay = 80;
     const int diffSteepness = 450;
-    int startStepDelay = minDelay + diffSteepness;
-    int stepDelay = startStepDelay;
+    int stepDelay = minDelay + diffSteepness;
     int choice;
     bool rightAnswer;
 
