@@ -166,7 +166,6 @@ void displayWrongAnswer(int lives) {
     outputArray(leds, N_LEDS, LOW);
     noTone(buzzer);
     delay(500);
-    Serial.print("You have ");
     Serial.print(lives);
     Serial.println(" tries remaining.");
     digitalWrite(lifeLeds[lives], LOW);
@@ -176,7 +175,7 @@ void displayWrongAnswer(int lives) {
 void displayRightAnswer(int score) {
     delay(300);
     outputArraySequenceAndBuzzer(leds, buzzer, buzzerScale, N_LEDS, 2, 50);
-    Serial.print("Correct! You have now ");
+    Serial.print("Correct! You now have ");
     Serial.print(score);
     Serial.println(" points.");
     delay(300);
